@@ -1,0 +1,84 @@
+import json
+import os
+
+DATA_FILE = "tasks.json"
+
+def load_tasks():
+    if not os.path.exists(DATA_FILE):
+        return []
+    with open(DATA_FILE, "r") as f:
+        return json.load(f)
+
+def save_tasks(tasks):
+    with open(DATA_FILE, "w") as f:
+        json.dump(tasks, f, indent=4)
+
+def list_tasks(tasks):
+    if not tasks:
+        print("✅ Your to-do list is empty!")
+        return
+    print("\n📋 To-Do List:")
+    for i, task in enumerate(tasks, 1):
+        status = "✔" if task["done"] else "✘"
+        print(f"{i}. [{status}] {task['title']}")
+
+def add_task(tasks, title):
+    tasks.append({"title": title, "done": False})
+    save_tasks(tasks)
+    print(f"➕ Added: {title}")
+
+def mark_done(tasks, index):
+    try:
+        tasks[index]["done"] = True
+        save_tasks(tasks)
+        print(f"✅ Marked as done: {tasks[index]['title']}")
+    except IndexError:
+        print("⚠ Invalid task number")
+
+def delete_task(tasks, index):
+    try:
+        removed = tasks.pop(index)
+        save_tasks(tasks)
+        print(f"🗑 Deleted: {removed['title']}")
+    except IndexError:
+        print("⚠ Invalid task number")
+
+def main():
+    tasks = load_tasks()
+    while True:
+        print("\nOptions:")
+        print("1. List tasks")
+        print("2. Add task")
+        print("3. Mark task as done")
+        print("4. Delete task")
+        print("5. Exit")
+        choice = input("Choose: ").strip()
+
+        if choice == "1":
+            list_tasks(tasks)
+        elif choice == "2":
+            title = input("Enter task: ").strip()
+            if title:
+                add_task(tasks, title)
+        elif choice == "3":
+            list_tasks(tasks)
+            try:
+                index = int(input("Enter task number: ")) - 1
+                mark_done(tasks, index)
+            except ValueError:
+                print("⚠ Please enter a number")
+        elif choice == "4":
+            list_tasks(tasks)
+            try:
+                index = int(input("Enter task number: ")) - 1
+                delete_task(tasks, index)
+            except ValueError:
+                print("⚠ Please enter a number")
+        elif choice == "5":
+            print("👋 Goodbye!")
+            break
+        else:
+            print("⚠ Invalid option")
+
+if __name__ == "__main__":
+    main()
